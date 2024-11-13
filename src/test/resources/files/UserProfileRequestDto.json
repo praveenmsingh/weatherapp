@@ -1,0 +1,9 @@
+{
+  "userId": 1,
+  "name": "Melb&Syd",
+  "cities": [
+    "Sydney",
+    "Melbourne",
+    "Brisbane"
+  ]
+}

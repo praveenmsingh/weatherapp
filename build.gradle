@@ -1,0 +1,92 @@
+plugins {
+	id 'java'
+	id 'idea'
+	id 'org.flywaydb.flyway' version '10.11.0'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.my'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2023.0.3")
+}
+
+dependencies {
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
+
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.flywaydb:flyway-core:10.20.1'
+	implementation 'org.flywaydb:flyway-database-postgresql:10.20.1'
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3'
+
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+	implementation 'org.mapstruct:mapstruct:1.6.2'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
+	testCompileOnly 'org.projectlombok:lombok'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+test {
+	jvmArgs '-da'  // Disable assertions
+}
+
+task componentTest(type: Test) {
+	description = 'Run component tests'
+	group = 'verification'
+
+	// Specify test classes for component tests
+	include 'component/*'  // This will match all files that start with ComponentTest in the test directory
+
+	// Optional: Set test source set to a specific folder for component tests
+	testClassesDirs = files('src/test/java/component/com/my/weatherapp')
+	classpath = sourceSets.test.runtimeClasspath
+
+	// Enable logging of component test results
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+		showStandardStreams = true
+	}
+
+	// If you need to use a different configuration for component tests (e.g., separate database, etc.)
+	systemProperty 'spring.profiles.active', 'test'
+}

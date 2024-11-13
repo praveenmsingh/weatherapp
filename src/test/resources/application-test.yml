@@ -1,0 +1,6 @@
+spring:
+  profile: test
+
+services:
+  availableCities:
+    # left blank

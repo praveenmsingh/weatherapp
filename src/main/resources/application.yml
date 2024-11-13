@@ -1,0 +1,121 @@
+management:
+  info:
+    git:
+      mode: full
+
+server:
+  port: 8090
+  servlet:
+    context-path: /myweatherapp
+
+spring:
+  application:
+    name: weatherapp
+  profiles:
+    active: dev
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/myweatherdb'
+    username: myuser
+    password: secret                  # to be encrypted and injected at runtime from either a vault sidecar or some secrets management
+    schemas: myweatherdb
+    hibernate.ddl-auto: none
+    driverClassName: org.postgresql.Driver
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hikari:
+      minimumIdle: 5
+      maximumPoolSize: 300
+      poolName: SpringBootJPAHikariCP
+      jdbc-url: ${spring.datasource.url}
+      username: ${spring.datasource.username}
+      password: ${spring.datasource.password}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    createSchemas: true
+    locations: classpath:db/migration
+    schemas: ${spring.datasource.schemas}
+    enabled: true
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+
+
+logging:
+  level:
+    root: debug
+
+services:
+  weatherDataLoader:
+    cron: "0 0/15 * * * *"
+  openWeather:
+    endpoint: 'https://api.openweathermap.org'
+    weatherDataPath: '/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={apiKey}'
+    weatherUnit: 'metric'
+    authKey: 'e7cf9517d1be0eb68eeed195dc51585b' # for dev-demo purposes, this could be setup and retrieved at runtime from Localstack AWS Secrets manager
+  availableCities:
+  - name: Sydney                               # had to hardcode these co-ordinates here due to GeoCoding API of Openweather being deprecated
+    latitude: -33.87
+    longitude: 151.21
+  - name: Melbourne
+    latitude: -37.81
+    longitude: 144.96
+  - name: Brisbane
+    latitude: -27.47
+    longitude: 153.03
+  - name: Perth
+    latitude: -31.95
+    longitude: 115.86
+  - name: Adelaide
+    latitude: -34.93
+    longitude: 138.60
+  - name: Gold Coast
+    latitude: -28.02
+    longitude: 153.40
+  - name: Canberra
+    latitude: -35.28
+    longitude: 149.13
+  - name: Newcastle
+    latitude: -32.93
+    longitude: 151.78
+  - name: Central Coast
+    latitude: -33.43
+    longitude: 151.35
+  - name: Wollongong
+    latitude: -34.43
+    longitude: 150.89
+  - name: Sunshine Coast
+    latitude: -26.65
+    longitude: 153.07
+  - name: Hobart
+    latitude: -42.88
+    longitude: 147.33
+  - name: Geelong
+    latitude: -38.15
+    longitude: 144.36
+  - name: Darwin
+    latitude: -12.46
+    longitude: 130.85
+  - name: Cairns
+    latitude: -16.92
+    longitude: 145.77
+  - name: Toowoomba
+    latitude: -27.56
+    longitude: 151.96
+  - name: Ballarat
+    latitude: -37.56
+    longitude: 143.85
+  - name: Bendigo
+    latitude: -36.76
+    longitude: 144.28
+  - name: Launceston
+    latitude: -41.44
+    longitude: 147.13
+  - name: Albury
+    latitude: -36.07
+    longitude: 146.91
